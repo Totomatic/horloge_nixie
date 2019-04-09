@@ -79,6 +79,7 @@ void setup()
 		{
 			internet = false;
 			break;
+			Serial.print("pas d'internet");
 		}
 	}
 	Serial.println();
@@ -97,48 +98,36 @@ void loop() {
 		timeClient.update();
 
 		heures = timeClient.getHours();
-		decimale = heures / 10;
-		reste = heures % 10;
-		heures_converties = decimale << 4 | reste;
+		conversion_nixie(heures, &heures_converties);
 
 		Serial.println("affichage de l'heure");
 		Serial.println(heures);
 		Serial.println(heures_converties, BIN);
 
-
 		minutes = timeClient.getMinutes();
-		decimale = minutes / 10;
-		reste = minutes % 10;
-		minutes_converties = decimale << 4 | reste;
+		conversion_nixie(minutes, &minutes_converties);
 
 		Serial.println("affichage des minutes");
 		Serial.println(minutes);
 		Serial.println(minutes_converties, BIN);
 
-
 		secondes = timeClient.getSeconds();
-		decimale = secondes / 10;
-		reste = secondes % 10;
-		secondes_converties = decimale << 4 | reste;
+		conversion_nixie(secondes, &secondes_converties);
 
 		Serial.println("affichage des secondes");
 		Serial.println(secondes);
 		Serial.println(secondes_converties, BIN);
-	}
 
+	}
 	else //pas d'internet, on fait défiler les chiffres toutes les secondes
 	{
 		refresh = 1000;
 		if (affPasInternet<9)
 		{
 			affPasInternet++;
+			conversion_nixie(affPasInternet, &affPasInternet_converties);
 
-			decimale = affPasInternet / 10;
-			reste = affPasInternet % 10;
-
-			affPasInternet_converties = heures_converties 
-				= minutes_converties = secondes_converties 
-				= decimale << 4 | reste;
+			heures_converties = minutes_converties = secondes_converties = affPasInternet_converties;
 
 			Serial.println("affichage de affPasInternet");
 			Serial.println(affPasInternet);
@@ -172,3 +161,11 @@ void loop() {
 	delay(refresh);
 }
 
+void conversion_nixie(int input, byte *output)
+{
+	int decimale;
+	int reste;
+	decimale = (input / 10) - 1;
+	reste = (input % 10) - 1;
+	*output = decimale << 4 | reste;
+}
